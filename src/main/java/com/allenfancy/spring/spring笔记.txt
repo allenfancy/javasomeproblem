@@ -1,0 +1,58 @@
+1.Spring作用域：
+	  在配置中用scope表示作用域：
+	  <bean id="userService" class="com.allenfancy.spring.service.impl.UserService" scope="prototype"></bean>
+	  1.singleton作用域：
+	  	当一个bean的作用域设置为singleton,那么Spring IOC容器中只会存在一个共享的bean实例，并且所有对bean请求，只要id与该bean定义相匹配，
+	  	则只会返回bean的同一实例。
+	  	单例设计模式表示一个ClassLoader中只有一个Class存在，而这里的singleton则表示一个容器对应的bean，也就是说当一个bean被标识为singleton时候，
+	  	spring的IOC容器中只会存在一个该bean。
+	  2.prototype
+	  	prototype作用域部署的bean，每一次请求(将其注入到另一个bean中，或者以程序的方式调用容器的getBean()方法)都会产生一个新的bean实例，相当于new的操作，
+	  	对于prototype作用的bean需要注意一点：
+	  		spring不能对一个prototype bean的珍格格生命周期负责，容器在初始化、配置、装饰或者是装配完一个prototype实例后，将它交给客户端，随后就对该prototype实例不闻不问。
+	  		不管何种作用域，容器都会调用所有对象的初始化生命周期回调方法，而对于prototype来说，任何配置好的析构生命周期回调方法都将不会被调用。
+	  		清除prototype作用域的对象并释放任何prototype  bean所持有的昂贵资源，都是客户端代码的职责。
+	  		（让Spring容器释放被singleton作用域bean占用资源的一种可行方式是，通过使用bean的后置处理器，该处理器持有要被清除的bean的引用）。
+	  3.request：
+	  	request表示该针对每一次HTTP请求都会产生一个新的bean。同时该bean仅在当前HTTP request内有效，配置实例：
+	  	request,session,global session使用的时候首先要在初始化web的web.xml中做如下配置：
+	  	Servlet 2.4及以上的web容器。
+	  		<listener>
+	  			<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	  		</listener>	
+	  	Servlet 2.4以下的web容器：
+	  	<filter>
+	  		<filter-name>requestContextFilter</filter-name>
+	  		<filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
+	  	</filter>
+	  	<filter-mapping>
+	  		<filter-name>requestContextFilter</filter-name>
+	  		<url-pattern>/*</url-pattern>
+	  	</filter-mapping>
+	  	仅接着配置bean的作用域：
+	  	<bean id="userService" class="" scope="request"/> 
+	  	
+	 4.session作用域：
+	 	session作用域表示该针对每一次HTTP请求都会产生一个新的bean，同时该bean仅当前HTTP session内有效。
+	 	<bean id="userService" class="" scope="session"/>
+	 
+	 5.global session:
+	 	global session作用域类似于标准的HTTP Session作用域	，不过仅仅基于portlet的web应用才有意义。
+	  		
+	  		
+	  		
+	  		
+	  			
+	  		
+	  		
+	  		
+	  		
+	  		
+	  		
+	  		
+	  		
+	  		
+	  		
+	  		
+	  		
+	  		
