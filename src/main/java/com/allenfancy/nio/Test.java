@@ -11,17 +11,24 @@ import java.nio.channels.FileChannel;
 public class Test {
 
 	public static void main(String[] args){
-		
+		//fileTest();
+		try {
+			nioCopyFile("/Users/allen/temp/hello.txt","/Users/allen/temp/hello1.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public static void fileTest(){
 		try {
-			FileInputStream fin = new FileInputStream(new File(""));
+			FileInputStream fin = new FileInputStream(new File("/Users/allen/temp/hello.txt"));
 			FileChannel fc = fin.getChannel();
 			ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
 			fc.read(byteBuffer);
 			fc.close();
 			byteBuffer.flip();
+			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
