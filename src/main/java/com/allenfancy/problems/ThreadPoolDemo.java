@@ -1,6 +1,8 @@
 package com.allenfancy.problems;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -18,7 +20,16 @@ public class ThreadPoolDemo {
 		
 		for(int i = 0; i < 15; i++){
 			MyTask myTask = new MyTask(i);
-			executor.execute(myTask);
+			Future f = executor.submit(myTask);
+			try {
+				System.out.println(f.get());
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			System.out.println("线程池中线程池数目：" + executor.getPoolSize() + ",队列中等待执行的任务数目：" +
 					executor.getQueue().size() + ",已执行完别的任务数目：" + executor.getCompletedTaskCount());
 		}
