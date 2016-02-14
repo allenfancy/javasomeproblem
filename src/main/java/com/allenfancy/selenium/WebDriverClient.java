@@ -8,7 +8,7 @@ public class WebDriverClient {
 
 	public static void main(String[] args) throws Exception{
 		GenericObjectPool<WebDriver> gop = new GenericObjectPool<WebDriver>(new WebDriverFactory());
-		gop.setMaxIdle(10);
+		gop.setMaxIdle(5);
 		gop.setMaxTotal(15);
 		gop.setTestOnBorrow(true);
 		gop.setTestOnReturn(true);

@@ -59,9 +59,6 @@ public class Demo5 {
 		//System.setProperty("webdriver.chrome.driver", "/Users/allen/temp/chromedriver");
 		DesiredCapabilities capability = DesiredCapabilities.chrome();
 		capability.setJavascriptEnabled(true);
-		//capability.setBrowserName("googlechrome");
-	//	capability.setPlatform(Platform.MAC);
-		capability.setVersion("2.48.2");
 		//capability.
 		WebDriver driver = new RemoteWebDriver(new URL(serverUrl), capability);
 		//WebDriver driver = new ChromeDriver();

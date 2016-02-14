@@ -1,0 +1,10 @@
+1.自己实现Common Pool2 只需要俩个步奏：
+	1，实现PooledObjectFactory接口：该接口是一种工厂模式，实现其目的是让对象池通过该工厂模式创建管理对象
+	2，创建对象池(GenericObjectPool(PooledObjectFactory))
+DEMO setups:
+	1.创建Conn对象池
+		我们假设Conn对象是一个建立TCP链接对象，该对象的初始化时间为500ms，为了避免在程序中频繁创建Conn对象，我们需要接触对象池管理Conn对象实例(Conn.java)
+	2.利用工程模式，使用对象池通过该工程模式创建管理的对象(ConnFactory.java)
+	3.为了模拟的更真实，ConnPool池可以让使用者个性化配置(ConnPool.java)
+	4.有了对象的工程，我们就可以创建一个对象池实例(ConnPool.java)
+	5.现在可以使用实例
