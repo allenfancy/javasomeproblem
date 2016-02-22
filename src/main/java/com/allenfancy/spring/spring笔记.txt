@@ -43,13 +43,86 @@
 	  		
 	  		
 	  			
+2.Spring提供了俩种容器类型：BeanFactory和ApplicationContext
+   BeanFactory。基础类型IoC容器，提供完整IoC服务支持。如果没有特殊指定，默认采用延迟初始化策略(lazy-load).只有当客户端对象需要访问容器中的某个受管对象的时候，才对该受管理对象进行初始化以及依赖注入操作。
+   			    所以，相对于来说，容器启动初始化速度较快，所需要的资源有限。对于资源有限，并且功能要求不是很严格的场景，BeanFactory是比较适合的IoC容器。
+   ApplicationContext。ApplicationContext在BeanFactoryFactory的基础上构建，是相对于比较高级的容器实现，除了拥有BeanFactory的所支持，ApplicationContext还提供了其他高级特性。	  		
+XML文件：
+	<beans>作为所有的<bean>的顶级，它拥有相应的属性(attribute)对所辖的<bean>进行统一的默认行为设置，如：
+	default-lazy-init:其值可以指定为true或者false，默认值为false.用来标志是否对所有的<bean>进行延迟初始化。
+	default-autowire:可以取值为no,byName,byType,constructor以及autodetect.默认为no。如果使用自动绑定的话，用来标志全体bean使用哪一种默认绑定方式。 
+	default-dependency-check:可以取值为none,objects,simple以及all，默认为none,即不做依赖检查。
+	default-init-method：如果所管辖的<bean>按照某种规则，都有同样名称的初始化方法的话，可以在这里统一制定这个初始化方法，而不用再一个<bean>上都重复单独指定。
+	default-destroy-method:与default-destory-method相对应，如果所管辖的bean有按照某种规则使用了相同的对象销毁方法，可以通过这个属性统一指定。
+	
+Spring IOC容器：
+	1.启动容器阶段
+		容器启动时，首先会通过某种方式加载Configuration MetaData。除了代码方式比较直接，在大部分情况下，容器需要依赖某种工具类(BeanDefinitionReader)对加载的Configuration MetaData进行解析和分析，并将分析后的结果编组为相应的BeanDefiniton，最后把这些保存了Bean定义必需信息的BeanDefintion,注册到相应的BeanDefinitonRegistry,这样容器启动工作就完成。 		
+	  	总体来说，这部分的工作就是为做准备。重点更加侧重于对象管理信息的收集。当然，一些验证性或者辅助性的工作也可以在这里完成。
+	2.Bean实例化阶段
+		经过第一阶段，现在所有的BeanFactory定义信息都通过BeanDefinition的方式注册到了BeanDefinitionRegister中，当某个请求方通过getBean方法明确请求某个对象，或者因依赖关系容器需要隐式地调用getBean方法时，就会出发第二阶段的活动。
+		
+		
+	3.Aware接口
+		对象实例化完成并且相关属性以及依赖设置完成后，Spring容器会检查当前对象实例是否实现了一系列的以Aware命名结尾的接口定义。
+		这些Aware接口为如下几个：
+		org.springframework.beans.factory.BeanNameAware：如果Spring容器检测到当前对象实例了该接口，会将该对象的bean定义对应的beanName设置到当前对象实例
+		org.springframework.beans.factory.BeanClassLoaderAware:如果容器检测到当前对象实例了该接口，会将对应加载当前bean的ClassLoader注入当前对象实例。默认会使用org.springframework.util.ClassUtils类的ClassLoader。
+		org.springframework.beans.factory.BeanFactoryAware:在介绍方法注入的时候，使用该接口以便每次获取prototype类型bean的不同实例。这样当前对象实例就拥有了一个BeanFactory容器的引用，并且可以对这个容器内允许访问的对象按照需要进行访问。
+	4.BeanPostProcessor
+		BeanPostProcessor与BeanFactoryPostProcessor的概念混淆。
+		BeanPostProcessor是存在于对象实例化阶段
+		BeanFactoryPostProcessor则是存在容器启动阶段
+小结SpringIoC：
+	Spring的IoC容器主要有俩种，即BeanFactory和ApplicationContext。Springmvc的BeanFactory基础容器。
+	BeanFactory作为一个具体的IoC Service Provider。它是如何支持各种对象注册一级依赖关系绑定的。XML至始至终都是Spring的IoC容器支持最完善的Configuration Metadata提供方式。所以，我们接着从XML入手，深入挖掘了BeanFactory的各种潜力。
+
+
+Spring IoC容器 ApplicationContext : 
+	统一资源加载策略
+	国际化信息支持
+	容器内部时间发布
+	多配置模块加载简化
+Spring为基本的BeanFactory类型容器提供了XMLBeanFactory实现。相应地，它也为ApplicationContext类型容器提供几个常用的实现。
+	org.springframework.context.support.FileSystemXmlApplicationContext:在默认情况下，从文件系统加载bean定义以及相关资源的ApplicationContext实现。
+	org.springframework.context.support.ClassPathXmlApplicaitonContext:在默认情况下，从Classpath加载bean定义以及相关资源的ApplicationContext实现。
+	org.springframework.web.context.supprot.XmlWebApplicationContext:Spring提供的用于Web应用程序的ApplicationContext实现。
 	  		
-	  		
-	  		
-	  		
-	  		
-	  		
-	  		
+	  	
+Spring AOP：
+ 第一代：
+ 	1.JointPoint
+ 	2.PointCut
+ 		Spring中以接口定义org.springframework.aop.PointCut作为其AOP框架中所有PointCut的最顶层抽象，该接口定义了俩个方法用来帮助捕捉系统中相应JointPoint，并提供了一个TruePointCut类型实例
+ 		PointCut源码：
+ 		/**
+	 * Return the ClassFilter for this pointcut.
+	 * @return the ClassFilter (never <code>null</code>)
+	 */
+	ClassFilter getClassFilter();
+	/**
+	 * Return the MethodMatcher for this pointcut.
+	 * @return the MethodMatcher (never <code>null</code>)
+	 */
+	MethodMatcher getMethodMatcher();
+
+	/**
+	 * Canonical Pointcut instance that always matches.
+	 */
+	Pointcut TRUE = TruePointcut.INSTANCE;	  		
+ClassFilter和MethodMatcher 分别用于匹配将被执行织入操作的对象以及相应的方法。之所以将类型匹配和方法匹配分开定义，是因为可以重用不同级别的匹配定义，并且可以在不同的级别或者相同的级别进行组合操作，或者强制让某个子类只复写(Override)相应的方法定义等。		
+常见的PointCut：
+	NameMatchMethodPointcut
+	这是最简单的Pointcut实现，属于StaticMethodMatcherPointcut的子类，可以根据自身指定的一组方法名称与JointPoint处的方法的方法名称进行匹配，比如：
+	NameMatchMethodPointcut pointCut = new NameMatchMethodPointcut();
+	pointCut.setMappedName("matches");
+	pointCut.setMappedNames(new String[]{"matches","isRuntime"})
+	
+	JdkRegexpMethodPointcut
+	Perl5RegexpMethodPointcut
+	AnnotationMatchingPointcut
+	ComposablePointcut
+	ControlFlowPointcut
 	  		
 	  		
 	  		

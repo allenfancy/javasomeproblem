@@ -13,7 +13,7 @@ package com.allenfancy.performancetuning.ch01.proxy;
  */
 public class Test {
 
-	private static final int CR = 30000;
+	private static final int CR = 1;
 	public static void main(String[] args) throws InstantiationException, IllegalAccessException{
 		/*IDBQuery q = new DBQueryProxy();
 		System.out.println(q.request());*/
