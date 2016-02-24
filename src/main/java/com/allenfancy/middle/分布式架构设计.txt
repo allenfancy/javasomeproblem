@@ -1,0 +1,62 @@
+1.分布式系统基础设施
+	1.1分布式缓存
+		1.分布式缓存
+			在高并发环境下，大量的读、写请求涌向数据库，磁盘的处理速度与内存显然不在一个量级，从减轻数据库的压力和提高系统响应速度俩个角度来考虑，一般都会在数据库之前加一层缓存。由于单台机器的内存资源和承载能力有限，并且如果大量使用本地缓存，也会使用相同的数据被不同的节点存储多分。
+		2.Memcache安装和简介(内存)
+			1.启动和关闭memcache
+			  启动：
+				/usr/local/bin/memcached -d -m 10 -u root -l 192.168.136.135 -p 11211 -c 32 -P /tmp/memcached.pid
+				参数的含义：
+				-d 表示启动的是一个守护进程
+				-m 指定分配给memcache的内存数量，单位MB,这里指定的是10MB
+				-u 指定运行memcache的用户，这里指定的是root
+				-l 指定监听的服务器的IP地址
+				-p 设置memcache监听的端口，这里指定的是11211
+				-c 指定最大允许的并发链接数，这里设置为32
+				-P 指定Memcache的pid文件保存的位置
+			 关闭memcache服务：
+			 	kill cat /tmp/memcached.pid
+			2.memcache API与分布式
+				Memcache 客户端与服务器通过构建在TCP协议之上的Memcache协议来进行通信，协议支持俩种数据的传递，这俩种数据分布为文本行和非结构化数据。文本行主要用来承载客户端的命令及服务端的响应，而非结构化数据则主要用于客户端和服务端数据的传递。由于非结构化数据采用字节流的形式在客户端和服务端之间进行传输和存储，因此使用方式非常灵活
+				缓存数据存储几乎没有任何限制，并且服务端也不需要关心存储具体内同以及字节序。
+				memcache协议支持通过如下几种方式来读取/写入/失效数据：
+				1.set	  将数据保存到缓存服务器，如果缓存服务器存在同样的key，则替换之；
+				2.add	  将数据新增到缓存服务器，如果缓存服务器存在同样的可以，则新增失败；
+				3.replace 将数据替换缓存服务器中相同的key，如果缓存服务器不存在同样的key，则替换失败；
+				4.append  将数据追加到已存在的数据后面
+				5.prepend 将数据追加到已经存在的数据前面
+				6.cas     提供对变量的cas操作，它将保存在进行数据更新之前，数据没有被其他人更改
+				7.get     从缓存服务器获取数据
+				8.incr    对计数器进行增量操作
+				9.decr    对计数器进行减量操作
+				10.delete 将缓存服务器上的数据删除
+			3.Memcache本身并不是分布式的缓存系统，它的分布式是由访问它的客户端来实现的。一种比较简单的实现方式根据缓存的key来进行hash，当后端有N台缓存服务器时，访问的服务器为hash(key)%N,这样可以将前端的请求均衡地映射到后端的缓存服务器。
+			4.分布式session
+				对于大型分布式网站来说，支撑其业务的远远不止一台服务器，而是一个分布式集群，请求在不同服务器之间跳转。那么，如何保持服务器之间的session同步呢？传统网站一般通过将一部分数据存储在cookie中，来规避分布式环境下session操作。分布式session在这种情况下孕育而生了。
+				Memcached-session-manager是一个开源的高可用的Tomcat session共享解决方案，它支持Sticky模式和Non-Sticky模式：
+				Sticky模式表示每次请求都会被映射到同一台后端Web Server,直到该Web Server宕机，这样session可先存放在服务器本地，等到请求处理完成再同步到后端memcache服务器；而当Web Server宕机时，请求被映射其他Web Server，这时候，其他Web Server可以从后端Memcache中恢复session。对于Non-Sticky模式来说，请求每次映射的后端Web Server是不确定的，当请求到来时，从memcache中加载session;当请求处理完成时，将session 再写回到Memcache
+				<Manager className = "" memcahedNodes="n1:192.168.1.100:11211,n1:192.168.1.101:11211"
+				 sticky="false" 
+				 sessionBackupAsync="false"
+				 lockingMode = "auto"
+				 requestUriIngnorePattern = ".*\.(ico | png | gif | jpg | css | js)$"
+				 transcoderFactoryClass= "de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFactory" />
+				 其中：memcachedNodes指定了memcache的节点；sticky表示是否采用Sticky模式；sessionBackupAsync表示是否采用异步方式备份session;lockingMode表示session的锁定模式；auto表示对于只读请求，session将不会被锁定，如果包含写入请求，则session会被锁定；requestUriIgnorePattern表示忽略的url；transcoderFactoryClass用来指定序列化的方式，这里采用的是Kryo序列化，也是memcahced-session-manager比较推荐的一种序列化方式
+						
+			
+	1.2持久化存储
+		传统的关系型数据库，MySQL提供完整的ACID操作，支持丰富的数据类型，强大的关联查询，where语句等，能够非常容易地建立传索引，执行复杂的内连接、外链接、求和、排序、分组等操作，并且支持存储过程，函数等功能，产品成熟度高，功能强大。对于大多数中小规模的应用来说，关系型数据库拥有强大完整的功能，以及提供的易用性、灵活性和产品成熟度，地位很难被完全替换。
+	  MySQL扩展：
+		1.业务拆分
+			将业务表分库
+		2.复制策略
+			拆分后的某个库压力越来越大，马上就要达到能力的瓶颈，数据库的架构不得不再次进行变更，这时可以使用MySQL的replication(复制)策略来对系统进行扩展。
+			通过数据库的复制策略，可以将一台MySQL数据库服务器中的数据复制到其他MySQL数据库服务器上。当各台数据库服务器上都包含相同数据时，前端应用通过访问MySQL集群中任意一台服务器，都能够读取到相同的数据，这样每台MySQL服务器所需要承担的负载就会大大降低，从而降低，从而提高整个系统的承载能力，达到系统扩展的目的。
+			要实现数据库的复制，需要开启Master服务器端的Binary log。数据复制的过程实际上就是Slave从master获取binary log，然后再在本地镜像的执行日志中记录的操作。由于复制过程是异步的，因此Master和Slave之间的数据有可能存在延迟的现象，此时只能能够保证数据最终的一致性。
+		3.分表与分库
+	
+	1.3消息系统
+	
+	1.4垂直化搜索引擎
+	
+	1.5其他基础设施

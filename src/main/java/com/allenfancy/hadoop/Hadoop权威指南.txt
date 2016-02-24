@@ -1,0 +1,4 @@
+2.MapReduce简介
+	使用Hadoop进行数据分析：
+	1.map 和 reduce
+	 MapReduce的工作过程分为俩个阶段：map阶段和reduce阶段。每个阶段有键/值对作为输入和输出，并且它们的类型可选
