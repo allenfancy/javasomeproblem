@@ -1,4 +1,4 @@
-package com.allenfancy.email;
+/*package com.allenfancy.email;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -6,7 +6,6 @@ import java.util.Calendar;
 
 import com.focussend.FocusEmail;
 import com.focussend.FocusReceiver;
-import com.focussend.FocusReport;
 import com.focussend.FocusSendWebServiceSoapProxy;
 import com.focussend.FocusTask;
 import com.focussend.FocusUser;
@@ -82,3 +81,4 @@ public class WebServiceCaller {
 		}
 	}
 }
+*/

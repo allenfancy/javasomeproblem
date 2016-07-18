@@ -4,8 +4,6 @@ import java.text.MessageFormat;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 
-import com.sun.xml.internal.bind.v2.runtime.output.Pcdata;
-
 public class Consumer implements Runnable {
 
 	private BlockingQueue<PCData> queue;

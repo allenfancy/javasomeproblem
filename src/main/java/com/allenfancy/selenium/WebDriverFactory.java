@@ -1,7 +1,5 @@
 package com.allenfancy.selenium;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;

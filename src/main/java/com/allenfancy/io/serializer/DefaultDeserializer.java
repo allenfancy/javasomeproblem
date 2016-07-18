@@ -2,7 +2,6 @@ package com.allenfancy.io.serializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 
 import org.springframework.core.NestedIOException;

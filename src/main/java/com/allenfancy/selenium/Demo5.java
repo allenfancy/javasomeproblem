@@ -12,13 +12,11 @@ import javax.imageio.ImageIO;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
-import org.openqa.selenium.Platform;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -39,7 +37,7 @@ public class Demo5 {
 		BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(takeScreenshot(driver)));
 		System.out.println(originalImage.getWidth()+" " +originalImage.getHeight()+" " +originalImage.getTileGridXOffset() 
 		+ " " +originalImage.getTileGridYOffset() +" " +originalImage.getTileWidth()+" " + originalImage.getTileHeight());
-		ImageIO.write(originalImage, "png", new File("/Users/allen/temp/all.png"));
+	//	ImageIO.write(originalImage, "png", new File("/Users/allen/temp/all.png"));
 		// 截取webElement所在位置的子图。
 		
 		System.out.println(location.getX() + " " + location.getY() + " " + size.getWidth() + " " + size.getHeight());
@@ -55,13 +53,13 @@ public class Demo5 {
 	
 
 	public static void main(String[] args) throws Exception {
-		String serverUrl = "http://127.0.0.1:4444/wd/hub";
-		//System.setProperty("webdriver.chrome.driver", "/Users/allen/temp/chromedriver");
-		DesiredCapabilities capability = DesiredCapabilities.chrome();
+		//String serverUrl = "http://127.0.0.1:4444/wd/hub";
+		System.setProperty("webdriver.chrome.driver", "/Users/allen/temp/chromedriver");
+		DesiredCapabilities capability = DesiredCapabilities.firefox();
 		capability.setJavascriptEnabled(true);
 		//capability.
-		WebDriver driver = new RemoteWebDriver(new URL(serverUrl), capability);
-		//WebDriver driver = new ChromeDriver();
+		//WebDriver driver = new RemoteWebDriver(new URL(serverUrl), capability);
+		WebDriver driver = new ChromeDriver();
 		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 		driver.manage().timeouts().setScriptTimeout(3, TimeUnit.SECONDS);
 		String login = "https://www.baidu.com";

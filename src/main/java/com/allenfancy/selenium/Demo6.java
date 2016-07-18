@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.util.concurrent.TimeUnit;
 
-
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;

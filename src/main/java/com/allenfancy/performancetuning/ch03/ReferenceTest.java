@@ -2,7 +2,6 @@ package com.allenfancy.performancetuning.ch03;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
-import java.util.Queue;
 
 /**
  * @author allen

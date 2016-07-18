@@ -1,10 +1,5 @@
 package com.allenfancy.performancetuning.ch04;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 public class Main5 {
 
 	public static void main(String[] args) {

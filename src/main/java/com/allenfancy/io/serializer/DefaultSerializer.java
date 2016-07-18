@@ -3,7 +3,6 @@ package com.allenfancy.io.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 
 public class DefaultSerializer implements Serializer<Object>{

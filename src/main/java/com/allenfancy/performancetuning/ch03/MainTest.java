@@ -1,7 +1,5 @@
 package com.allenfancy.performancetuning.ch03;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
-
 public class MainTest {
 
 	//public static int a = 0;

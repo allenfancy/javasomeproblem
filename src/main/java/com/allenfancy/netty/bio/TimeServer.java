@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import com.allenfancy.netty.bio.TimeServerHandler;
-
 public class TimeServer {
 
     
@@ -19,8 +17,8 @@ public class TimeServer {
 	    System.out.println("The time server is start in port : " + port);
 	    Socket socket = null;
 	    while (true) {
-		socket = server.accept();
-		new Thread(new TimeServerHandler(socket)).start();
+	    	socket = server.accept();
+	    	new Thread(new TimeServerHandler(socket)).start();
 	    }
 	} finally {
 	    if (server != null) {

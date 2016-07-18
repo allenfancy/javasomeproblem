@@ -1,13 +1,13 @@
 package com.allenfancy.apache.common.pool;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TestObjectPool
 {

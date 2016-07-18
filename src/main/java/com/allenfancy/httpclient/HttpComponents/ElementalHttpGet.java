@@ -33,7 +33,7 @@ public class ElementalHttpGet {
 		HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 		
 		HttpCoreContext coreContext = HttpCoreContext.create();
-		HttpHost host = new HttpHost("localhost",8080);
+		HttpHost host = new HttpHost("http://www.baidu.com");
 		coreContext.setTargetHost(host);
 		
 		DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8*1024);
@@ -41,9 +41,7 @@ public class ElementalHttpGet {
 		
 		try{
 			String[] targets = {
-                    "/",
-                    "/servlets-examples/servlet/RequestInfoExample",
-                    "/somewhere%20in%20pampa"};
+                    "http://www.baidu.com"};
 			for(int i = 0;i < targets.length;i++){
 				if(!conn.isOpen()){
 					Socket socket = new Socket(host.getHostName(),host.getPort());

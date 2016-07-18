@@ -19,8 +19,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.Augmenter;
 
-import sun.misc.ConditionLock;
-
 public class WebDriverPool {
 
 	private ObjectPool<WebDriver> pool;

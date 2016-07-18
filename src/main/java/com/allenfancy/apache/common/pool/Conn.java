@@ -1,7 +1,5 @@
 package com.allenfancy.apache.common.pool;
 
-import org.apache.log4j.spi.LoggerFactory;
-
 public class Conn {
 	/**
 	 * 记住创建时间

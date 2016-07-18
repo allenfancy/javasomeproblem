@@ -3,7 +3,6 @@ package com.allenfancy.performancetuning.ch02;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.pool.PoolableObjectFactory;
-import org.apache.poi.hssf.record.formula.functions.T;
 
 public class PoolableObjectFactoryDemo implements PoolableObjectFactory<Object>{
 

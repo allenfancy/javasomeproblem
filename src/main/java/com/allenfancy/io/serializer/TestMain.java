@@ -1,7 +1,5 @@
 package com.allenfancy.io.serializer;
 
-import java.io.InputStreamReader;
-
 import com.allenfancy.json.User;
 
 public class TestMain {

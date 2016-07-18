@@ -1,7 +1,5 @@
 package com.allenfancy.performancetuning.ch04;
 
-import com.sun.swing.internal.plaf.synth.resources.synth;
-
 public class PThread  extends Thread{
 
 	private ThreadPool pool;

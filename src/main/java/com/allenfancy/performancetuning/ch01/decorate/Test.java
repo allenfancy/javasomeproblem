@@ -3,11 +3,8 @@ package com.allenfancy.performancetuning.ch01.decorate;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import javax.xml.crypto.Data;
 
 /**
  * 

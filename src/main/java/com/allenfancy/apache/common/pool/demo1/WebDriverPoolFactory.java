@@ -1,14 +1,10 @@
 package com.allenfancy.apache.common.pool.demo1;
 
-import java.net.URL;
-
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class WebDriverPoolFactory implements PooledObjectFactory<WebDriver> {
 

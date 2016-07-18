@@ -1,7 +1,5 @@
 package com.allenfancy.httpclient.HttpComponet;
 
-import java.io.IOException;
-
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;

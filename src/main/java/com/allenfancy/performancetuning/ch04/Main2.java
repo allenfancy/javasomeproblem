@@ -3,8 +3,6 @@ package com.allenfancy.performancetuning.ch04;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.poi.util.SystemOutLogger;
-
 public class Main2 {
 
 	public static void main(String[] args){

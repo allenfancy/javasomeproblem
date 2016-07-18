@@ -8,8 +8,6 @@ import java.util.concurrent.Executors;
 
 import org.openqa.selenium.WebDriver;
 
-import com.sun.corba.se.impl.orbutil.closure.Future;
-
 public class WebDriverTest {
 	
 	ExecutorService es = Executors.newFixedThreadPool(20);

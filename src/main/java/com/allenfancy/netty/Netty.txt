@@ -1,0 +1,316 @@
+NIO服务端序列图：
+
+NioServer								Reactor  Thread						IoHandler
+   |											|
+   |	1.打开ServerSocketChannel				|
+   |											|
+   |	2.绑定监听地址InetSocketAddress			|
+   |											|
+   |											|3.创建Selector，启动线程
+   |											|
+   |	4.ServerSocketChannel注册到Selector，监听	|
+   |											|5.Selector轮询轮询就绪的Key
+   |											|									7.设置新建客户端连接的Socket参数
+   |											|6.handleAccept()处理新的客户端接入
+   |											|
+   |											|
+   |											|8.向Selector注册监听读操作SelectionKey.OP_READ
+   |											|
+   |											|9.handleRead()异步读请求消息到ByteBuffer
+   |											|
+   |											|									  10.decode请求消息
+   |											|11.异步写ByteBuffer到SocketChannel
+   |											|											|
+   								NIO服务端通信序列图
+   								
+   NIO客户端序列图：
+   
+   NioClient									Reactor Thread 								IoHandler
+  	|												|											|
+  	|	1.打开SocketChannel							|											|
+  	|												|											|
+  	|												|											|
+  	|	2.设置SocketChannel为非阻塞模式，				|											|
+  	|	  同时设置TCP参数								|											|
+  	|												|											|
+  	|	--------->						SERVER		|											|
+  	|												|											|
+  	|	3.异步连接服务器								|											|
+  	|												|											|
+  	|												|											|
+  	|	4.判断连接结果，如果连接成功，调到步奏10，		|											|
+  	|	否则执行步奏5									|											|
+  	|												|											|
+  	|												|											|
+  	|	5.向Reactor线程的多路复用器注册OP_CONNECTION事件	 6.创建Selector，启动线程					|											|
+  	|												|											|
+  	|												|	7.Selector轮询就绪的key					|
+  	|												|											|
+  	|												|  8.handerConnect()						|
+  	|												|											|9.判断连接是否完成，完成执行步奏10										|											|
+  	|												|											|
+  	|												|	10.向多路复用器注册读事件OP_READ			|
+  	|												|							《----------		|
+  	|												|	11.handleRead()异步读取请求消息到ByteBuffer										|
+  	|												|											|
+  	|												|											|12.decode 请求消息
+  	|												|											|
+  	|												|	13.异步写ByteBuffer到SocketChannel										|
+  												NIO客户端创建序列图
+  												
+  	步骤1.打开SocketChannel，绑定客户端本地地址：SocketChannel clientChannel = SocketChannel.open()
+  	步奏2.设置SocketChannel为非阻塞模式，同时设置客户端链接的TCP参数
+  		  clientChannel.configureBlocking(false)
+  		  socket.setResuseAddress(true)
+  		  socket.setReceiveBufferSize(BUFFER_SIZE)
+  		  socket.setSendBufferSize(BUUFER_SIZE)
+  	步骤3.异步链接服务器
+  		 boolean connected = clientChannel.connect(new InetSocketAddress("ip",port));
+  		 
+  	步骤4.判断是否链接成功，如果链接成功，则直接注册读状态到多路复用器中，如果当前没有链接成功。异步链接，则返回false。说明客户端已经发送sync包，服务端没有返回ack包，物理链路还没有建立
+  		if(connected){
+  			clientChannel.register(selector,SelectionKey.OP_READ,ioHandler);
+  		}else{
+  			clientChannel.register(selector,SelectionKey.OP_CONNECT,ioHandler);
+  		}
+  	步骤5.向Reactor线程的多路复用器注册OP_CONNECT状态位，监听服务端的TCP ACK应答，示例代码如下：
+  		clientChannel.register(selector,SelectionKey.OP_CONNECTION,ioHandler)
+  	步骤6.创建Reactor线程，创建多路复用器并启动线程。
+  		Selector selector = Selector.open()
+  		new Thread(new ReactorTask()).start()
+  	步奏7.多路复用器在线程run方法的无限循环体内轮询准备就绪的Key，代码如下：
+  		int num = selector.select();
+  		Set selectedKeys = selector.selectedKeys();
+  		Iterator it = selectedKeys.interator();
+  		while(it.hasNext()){
+  			SelectionKey key = it.next();
+  			
+  		}
+  	 步骤8.接收connect事件进行处理，示例代码如下：
+  	 	if(key.isConnectable()){
+  	 		
+  	 	}
+  	 步骤9.判断链接结果，如果链接成功，注册读取事件到多路复用器，
+  	 	if(channel.finishConnect())
+  	 		registerRead()
+  	 步骤10.注册读事件到哦多路复用器。
+  	 	clientChannel.register(selector,SelectionKey.OP_READ,ioHandler)
+  	 步骤11.异步读客户端请求消息到缓冲区
+  	 	int readNumber = channel.read(receivedBuffer)
+  	 步骤12.对ByteBuffer进行编码，如果有半包消息接收缓冲区Reset，继续读取后续的报文，将编码成功的消息封装成Task，投递到业务线程池中，进行业务逻辑排
+  	 	Object message = null;
+  	 	while(buffer.hasRemain()){
+  	 		byteBuffer.mark();
+  	 		Object message = decode(byteBuffer)
+  	 		if(message == null ){
+  	 			byteBuffer.reset()
+  	 			break;
+  	 		}
+  	 		messageList.add(message)
+  	 	}
+  	 	if(!byteBuffer.hasRemain()){
+  	 		byteBuffer.clear();
+  	 	}else{
+  	 		byteBuffer.compact();
+  	 	}
+  	 	if(messageList != null & !messageList.isEmpty){
+  	 		for(Object messageE : messageList){
+  	 			handlerTask(messageE)
+  	 		}
+  	 		
+  	 	}
+  	 步骤13.将POJO对象encode成ByteBuffer，调用SocketChannel的异步Write接口，将消息异步发送给客户端
+  	 	socketChannel.write(buffer);
+   
+   使用NIO编程的优点总结如下：
+   	1.客户端发起的链接操作是异步的，可以通过在多路复用器注册OP_CONNECT等待后续结果，不需要像之前客户端那样被同步阻塞
+   	2.SocketChannel的读写操作都是异步的，如果没有可读写的数据它不会同步等待，直接返回，这样I/O通信线程就可以处理其他的链路，不需要同步等待这个链路可用
+   	3.线程模型的优化：由于JDK的Selector在Linux等主流操作系统上通过epoll实现，它没有连接句柄的限制，这意味着一个Selector线程可以同时处理成千上万个客户端连接，而且性能不会随着客户端的增加而线性下降，因此，它非常适合作呕高性能、高负载的网络服务。
+
+AIO编程
+	NIO2.0 引入了新的异步通道的概念，并提供了异步文件通道和异步套接字通道的实现。异步通道提供俩种方式获取操作结果。
+	通过java.util.concurrent.Future类来表示异步操作的结果
+	在执行异步操作的时候传入一个java.nio.channels.
+	CompletionHandler接口的实现类作为操作完成的回调。
+	NIO2.0的异步套接字通道是真正的异步非阻塞I/O,它对应的UNIX网络编程中的事件驱动I/O(AIO),他不需要通过多路复用(Selector)对注册的通道进行轮询操作即可实现异步读写，从而简化了NIO的编程模型。
+	
+TCP粘包/拆包问题的解决之道：
+	无论是服务端还是客户端，当我们读取或者发送消息的时候，都需要考虑TCP底层的粘包、拆包机制。
+	问题产生的原因：
+		1.应用程序write写入的字节大小大于套接字发送缓冲区大小
+		2.进行MSS大小的TCP分段
+		3.以太网帧的payload大于MTU进行IP分片
+	
+	
+  LineBasedFrameDecoder和StringDecoder的原理分析：
+  	LineBasedFrameDecoder的工作原理是它依次遍历ByteBuf中的可读字节，判断看是否有"\n"或者"\r\n",如果有，就以此位置为结束位置，从可读索引到结束位置区间的字节就组成一行。
+  	它是以换行符为结束标志的解码器，支持携带结束或者不携带结束符俩种解码方式，同时支持配置单行的最大长度。如果连续读取到最大长度后仍然没有发现换行符，就会抛出异常，同时忽略掉之前的异常码流。
+  	StringDecoder的功能非常简单，就是将接收到的对象转码成字符串，然后继续调用后面的hanlder.LineBasedFrameDecoder + StringDecoder组合就是按行切换的文本解码器，它被设计用来支持TCP的粘包和拆包。
+  	
+  	疑问：如果发送的消息不是以换行符结束的该怎么办呢？或者没有回车换行符，靠消息头中的长度字段来分段来分包怎么办？是不是需要自己写半包解码器？
+  		 Netty提供了多种支持TCP粘包/拆包的解码器，用来满足用户的不同诉求。
+ 分隔符和定长解码器的应用：
+ 	TCP以流的方式进行数据传输，上层的应用协议为了消息进行区分，往往采用如下4中方式。
+ 		1.消息长度固定，累计读取到长度总和为定长LEN的报文后，就认为读取到了一个完整的消息；将计数器位置，重新开始读取下一个数据报；
+ 		2.将换行符作为消息结束符，例如：FTP协议，这种方式在文本协议中应用比较广泛
+ 		3.将特殊的分割符作为消息的结束标志，回车换行符就是一种特殊的结束分割符
+ 		4.通过在消息头中定义长度段来标志消息的总长度
+ 	Netty对上面四种应用做了统一的抽象，提供了4中解码器来解决对应的问题。
+ 	LineBasedFrameDecoder解决TCP的粘包问题，本章我们继续学习另外俩种使用的解码-DelimiterBasedFrameDecoder和FixedLengthFrameDecoder
+ 	前者可以自动完成以分隔符作为结束标志的消息的解码，后者可以自动完成对定长消息的解码，它们都能解决TCP粘包和拆包导致的读半包问题
+ 	
+ 	DelimiterBasedFrameDecoder 服务端开发
+ 	DelimiterBasedFrameDecoder 客户端开发
+ 	运行DelimiterBasedFrameDecoder服务端和客户端
+ 	FixedLengthFrameDecoder 服务端开发
+ 	通过telnet命令调试FixedLengthFrameDecoder服务端
+ 	
+ 	1.DelimiterBasedFrameDecoder应用开发
+ 		使用DelimiterBasedFrameDecoder，我们可以自动完成以分隔符作为码流结束标识的消息的解码。
+  	
+  	2.FixedLengthFrameDecoder应用开发
+  		FixedLengthFrameDecoder 是固定长度解码器，它能够按照指定的长度对消息进行自动解码，开发者不需要考虑TCP的粘包、拆包问题，非常实用 。
+  	
+  中级篇
+  	Netty编解码开发指南：
+  		编解码技术
+  		Java序列化
+  		Google Protobuf编解码
+  		JBoss Marshalling 编解码
+    
+    编解码技术：
+    	基于Java提供的对象输入 输出流ObjectInputStream 和 ObjectOutputStream，可以直接把Java对象作为可存储的字节数组写入文件，也可以传输到网络上。
+    	Java序列化的目的主要有俩个：
+    		网络传输
+    		对象持久化
+    	 当进行远程跨进程服务调用时，需要把被传输的Java对象解码为字节数组或者ByteBuffer对象。这就被称为Java对象编解码技术
+  	
+  		编解码框架：
+  			是否支持跨语言，支持的语言种类是否丰富
+  			编码后的码流大小
+  			编解码的性能
+  			类库是否小巧，API使用是否方便
+  			使用者需要手工开发的工作量和难度
+  			
+  Java序列化
+  	编解码技术是Java的默认序列化，只需要序列化的POJO对象实现java.io.Serializable接口，根据实际情况生成序列化ID，这个类就能够通道java.io.ObjectInput 和 java.io.ObjectOutput序列化和反序列化。
+  	不需要考虑跨语言调用，对序列化的性能也没有苛刻的要求，Java默认的序列化机制是最明智的选择之一。
+  	本章主要内容包括：
+  		Netty Java序列化服务端开发
+  		Netty Java序列化客户端开发
+  		运行Java序列化应用
+  	Netty Java 序列化服务端开发
+  		场景：Netty服务端接收到客户端的用户订购请求消息，消息定义如：
+  		SubscribeReq消息定义：
+  		字段名称						字段类型								备注
+  		subReqId					整型数							订购编号
+  		userName					字符串							用户名
+  		productName					字符串							订购的产品名称
+  		phoneNumber					字符串							订购者电话号码
+  		address						字符串							订购者的家庭住址
+  		SubscribeResp消息定义：
+  		字段名称						字段类型								备注
+  		subReqID					整型数							订购编号
+  		respCode					整型数							订购结果：0 表示成功
+  		desc						字符串							可选的详细描述信息
+  	
+ 关于Google ProtoBuf编解码  和 JBoss Marshlling编解码 
+   
+ 
+ 
+ 
+ HTTP协议开发应用
+ 	1.HTTP协议介绍
+ 	2.Netty HTTP服务端入门开发
+ 	3.Netty HTTP + XML 协议栈开发
+  	
+  	
+ UDP协议开发
+ UDP是用户数据报协议(User Datagram Protocol,UDP)的简称，其主要的作用是将网络数据流压缩成数据报形式，提供面向事务的简单信息传输服务。
+ 与TCP协议不同，UDP协议直接利用进行UDP数据报的传输，UDP提供的是面向无连接的，不可靠的数据报投递服务。当使用UDP协议传输信息时，
+ 用户应用程序负责解决数据报的丢失、重复、排序，拆错确定等问题。
+ UDP具有资源消耗小，处理速度快的有点，所以通常视频、音频等可靠性要求不高的数据传输一般会使用UDP，几遍有一定的丢包率，也不会对该功能造成严重的影响
+ Netty开发一部的UDP应用程序。
+ UDP协议介绍：
+ 	UDP是无连接的，通信双方不需要建立物理链路连接。在网络中它用于处理数据包，在OSI模型中，它处于第四次传输层，即位于IP协议的上一层。
+ 	它不对数据报分组、组装、校验和排序，因此是不可靠的。报文的发送者不知道报文是否被对方正确接收
+ 	UDP数据报格式有首部和数据俩个不分，首部很简单，8个字节，包括以下部分：
+ 		1.源端口：源端口号，2个字节，最大值为65535
+ 		2.目的端口：目的端口号，2个字节，最大值为65535
+ 		3.长度；2字节，UDP用户数据报的总长度
+ 		4.校验和：2字节，用于检验UDP数据报的数字段和包含UDP数据报首段的『伪首部』。其校验方法类似于IP分组首部中校验和。
+ 		伪首部，即伪包头：是指在TCP的分段或者UDP的数据报格式中，在数据报首部前面增加源IP地址、IP分组的协议字段，TCP或者UDP数据报的总长度等。
+ 		总共12个字节，所构成首部结构
+ 	UDP协议的特点：
+ 		1.UDP传输数据前并不与对方建立连接，即UDP是无连接的，在传输数据前，发送方和接收方相互交换信息使双方同步信息
+ 		2.UDP对接收到的数据报不发送确认信号，发送端不知道数据是否被正确接收，也不会重发数据。
+ 		3.UDP传输数据比TCP快速，系统开销小：UDP比较简单，UDP头包含了源端口、目的端口、消息长度和校验和等很少的字节。
+ 	使用场景：视频、图片以及简单的文件传输系统等。
+ 	TCP则使用适用于可靠性要求很高但实时性要求不高的应用，如文件传输协议FTP，超文本传输协议HTTP，简单邮件协议SMTTP等。
+ 	
+ 	
+ 文件传输
+ 	NIO类库提供之前，Java所有的文件操作分为俩大类：
+ 		基于字节流的InputStream 和OutputStream
+ 		基于字节流的Reader和Writer。
+ 	通过NIO新提供的FileChannel类库可以方便地以『』管道『方式对文件进行各种I/O操作。
+ 	FileChannel简介：
+ 		FileChannel是一个链接到文件的通道，可以通过这个文件通过读写文件。FileChannel是同步阻塞的。
+  	
+  	
+  	在Java应用中，通常使用四种方式进行跨节点通信。
+  		1.通过RMI进行远程服务调用
+  		2.通过Java的Socket+Java序列化的方式进行跨节点调用
+  		3.利用一些开源的RPC框架进行远程服务调用，例如FaceBook的Thrift,Apache的Avro等
+  		4.利用标准的共有协议进行跨节点服务调用，例如：HTTP+XML，RESTFUL + JSON或者WebService
+  	跨节点的远程服务于调用，除了链路层的物理连接外，还需要对请求和响应进行编码。在请求和应答消息本身外，也需要携带一些其他和管理类指令
+  	例如：链路建立的握手请求和响应请求消息、链路检测的心跳消息等。当这些功能组合后，就会形成私有协议。
+  	网络拓扑图：
+  	
+  	协议栈功能描述：
+  		Netty协议栈承载了业务内部各模块之间的消息交互和服务调用，它的主要功能有：
+  			1.基于Netty的NIO通信框架，提高高性能的异步通信能力
+  			2.提供消息的编解码框架，可以实现POJO的序列化和反序列化
+  			3.提供基于IP地址的白名单接入认证机制
+  			4.链路的有效性校验机制
+  			5.链路的断连重连机制
+  	通信模型：
+  		Netty协议栈通信模型如：
+  			Netty									Netty
+  					1.握手请求
+  					2.握手应答
+  					3.发送业务消息
+  					4.发送心跳消息
+  					5.发送心跳消息
+  					6.发送业务消息
+  			
+  			
+  			客户端									服务端
+  			
+  		
+  	Netty消息定义：
+  		Netty协议栈消息定义包含俩个部分：
+  			消息头
+  			消息体
+  			
+  		Netty消息定义表：(NettyMessage)
+  		名称				类型					长度					描述
+  		header		   Header			   变长				消息头定义
+  		body			Object		       变长				对于请求消息，它是方法的参数（作为示例，只支持携带一个参数）
+															对于响应消息，它是返回值  	
+  		Netty协议消息头定义(Header)
+  		名称						类型				长度						描述
+  		crcCode					int				32 					Netty消息的校验码，它是由三部分组成：
+  																		1.0xABEF：固定值，表明该消息是Netty协议消息，2个字节
+  																		2.主板本号：1~255,1个字节
+  																		3.次版本号：1~255,1个字节
+  																		crcCode = 0xABEF + 主版本号 + 次版本号
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	

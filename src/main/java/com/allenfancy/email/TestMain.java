@@ -1,12 +1,9 @@
-package com.allenfancy.email;
+/*package com.allenfancy.email;
 
 import java.rmi.RemoteException;
 
-import org.apache.axis.description.TypeDesc;
-
 import com.focussend.FocusReceiverAction;
 import com.focussend.FocusReport;
-import com.focussend.FocusSendWebService;
 import com.focussend.FocusSendWebServiceSoapProxy;
 import com.focussend.FocusUser;
 
@@ -69,3 +66,4 @@ public class TestMain {
 		
 	}
 }
+*/

@@ -1,11 +1,7 @@
 package com.allenfancy.apache.common.pool;
 
-import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.apache.commons.pool2.impl.SoftReferenceObjectPool;
 import org.openqa.selenium.WebDriver;
-
-import com.allenfancy.selenium.WebDriverFactory;
 
 public class WebDriverPoolTest {
 	
